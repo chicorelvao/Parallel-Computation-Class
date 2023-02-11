@@ -1,0 +1,37 @@
+This program brings up some difficulties in applying a parallelization algorithm.
+
+Suppose 10k games have to be played. Dividing the games by a certain
+number of threads, with individual statistics dictionaries, is not an effective strategy. 
+Why? Well, because each core has a strategy dictionary that stores the statistics
+from the games played by the core. The algorithm used is more or less linear, with
+very little randomness, so the cores will all achieve the same result, after 
+finnish  the respective games.
+A single core playing 10k might be able to find a higher winning strategy position,
+since it has access to more games statistics.
+
+
+Now, what could be done is, for example, a  main core takes care of statistics 
+and communication of these. The other cores play the games, requesting the best
+moves and sending their games statistics to the main core.
+This of course requires a big bandwidth, as the cores don't keep any statistics,
+only the current game information. The communication is also somewhat difficult, 
+because the threads need to ask for information.
+
+Another way would be to make a core start a game, play a few rounds, and pass it to next
+core and the process repeats. This brings a lot of problems, one being done time 
+at the beginning and ending of the parallelization algorithm. 
+
+Dividing a game by threads, shouldn't help the case of parallelization, because
+of the way current processors work with the clock frequency. Usually a cycle is, more or less, 
+composed of moving memory in and out of registers or cache and after, the computation is
+done over the registers. Moving memory inside a processor is very fast, but even though moving between
+processors is fast, but I'm not sure if it would be fast enough. Building a parallelization algorithm based on this concept also seems very hard from 
+the communication point of view. 
+
+In summary, the statistics dictionary must be accessible to all the threads playing 
+the respective games, whatever the parallelization algorithm may be.
+The easiest away to parallelize the code seems to be giving the games to each thread 
+and having a main thread managing the information from the general games' statistics dictionaries.
+
+
+
